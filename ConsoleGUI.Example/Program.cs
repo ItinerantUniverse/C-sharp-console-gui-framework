@@ -9,6 +9,7 @@ namespace ConsoleGUI.Example
 {
 	class Program
 	{
+		private static ConsoleManager _consoleManager = new ConsoleManager();
 		static void Main()
 		{
 			var clock = new TextBlock();
@@ -278,9 +279,9 @@ namespace ConsoleGUI.Example
 				}
 			}, new Rect(0, 7, 17, 5));
 
-			ConsoleManager.Setup();
-			ConsoleManager.Resize(new Size(150, 40));
-			ConsoleManager.Content = dockPanel;
+			_consoleManager.Setup();
+			_consoleManager.Resize(new Size(150, 40));
+			_consoleManager.Content = dockPanel;
 
 			var input = new IInputListener[]
 			{
@@ -297,8 +298,8 @@ namespace ConsoleGUI.Example
 				clock.Text = DateTime.Now.ToLongTimeString();
 				if (i % 200 == 0) secondaryConsole.Add($"Ping {i / 200 + 1}");
 
-				ConsoleManager.ReadInput(input);
-				ConsoleManager.AdjustBufferSize();
+				_consoleManager.ReadInput(input);
+				_consoleManager.AdjustBufferSize();
 			}
 		}
 	}

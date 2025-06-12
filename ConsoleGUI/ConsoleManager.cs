@@ -13,28 +13,36 @@ using System.Threading;
 
 namespace ConsoleGUI
 {
-	public static class ConsoleManager
+	public class ConsoleManager
 	{
 		private class ConsoleManagerDrawingContextListener : IDrawingContextListener
 		{
+			private readonly ConsoleManager _consoleManager;
+
+			public ConsoleManagerDrawingContextListener(ConsoleManager consoleManager)
+			{
+				_consoleManager = consoleManager;
+			}
+
 			void IDrawingContextListener.OnRedraw(DrawingContext drawingContext)
 			{
-				if (_freezeLock.IsFrozen) return;
-				Redraw();
+				if (_consoleManager.FreezeLock.IsFrozen) return;
+				_consoleManager.Redraw();
 			}
 
 			void IDrawingContextListener.OnUpdate(DrawingContext drawingContext, Rect rect)
 			{
-				if (_freezeLock.IsFrozen) return;
-				Update(rect);
+				if (_consoleManager.FreezeLock.IsFrozen) return;
+                _consoleManager.Update(rect);
 			}
 		}
 
-		private static readonly ConsoleBuffer _buffer = new ConsoleBuffer();
-		private static FreezeLock _freezeLock;
+		private readonly ConsoleBuffer _buffer = new ConsoleBuffer();
+		private FreezeLock _freezeLock;
+		internal FreezeLock FreezeLock => _freezeLock;
 
-		private static DrawingContext _contentContext = DrawingContext.Dummy;
-		private static DrawingContext ContentContext
+		private DrawingContext _contentContext = DrawingContext.Dummy;
+		private DrawingContext ContentContext
 		{
 			get => _contentContext;
 			set => Setter
@@ -42,8 +50,8 @@ namespace ConsoleGUI
 				.Then(Initialize);
 		}
 
-		private static IControl _content;
-		public static IControl Content
+		private IControl _content;
+		public IControl Content
 		{
 			get => _content;
 			set => Setter
@@ -51,8 +59,8 @@ namespace ConsoleGUI
 				.Then(BindContent);
 		}
 
-		private static IConsole _console = new StandardConsole();
-		public static IConsole Console
+		private IConsole _console = new StandardConsole();
+		public IConsole Console
 		{
 			get => _console;
 			set => Setter
@@ -60,8 +68,8 @@ namespace ConsoleGUI
 				.Then(Initialize);
 		}
 
-		private static Position? _mousePosition;
-		public static Position? MousePosition
+		private Position? _mousePosition;
+		public Position? MousePosition
 		{
 			get => _mousePosition;
 			set => Setter
@@ -69,8 +77,8 @@ namespace ConsoleGUI
 				.Then(UpdateMouseContext);
 		}
 
-		private static bool _mouseDown;
-		public static bool MouseDown
+		private bool _mouseDown;
+		public bool MouseDown
 		{
 			get => _mouseDown;
 			set
@@ -84,8 +92,8 @@ namespace ConsoleGUI
 			}
 		}
 
-		private static MouseContext? _mouseContext;
-		private static MouseContext? MouseContext
+		private MouseContext? _mouseContext;
+		private MouseContext? MouseContext
 		{
 			get => _mouseContext;
 			set
@@ -105,10 +113,10 @@ namespace ConsoleGUI
 			}
 		}
 
-		public static Size WindowSize => Console.Size;
-		public static Size BufferSize => _buffer.Size;
+		public Size WindowSize => Console.Size;
+		public Size BufferSize => _buffer.Size;
 
-		private static void Initialize()
+		private void Initialize()
 		{
 			var consoleSize = BufferSize;
 
@@ -122,12 +130,12 @@ namespace ConsoleGUI
 			Redraw();
 		}
 
-		private static void Redraw()
+		private void Redraw()
 		{
 			Update(ContentContext.Size.AsRect());
 		}
 
-		private static void Update(Rect rect)
+		private void Update(Rect rect)
 		{
 			Console.OnRefresh();
 
@@ -156,12 +164,12 @@ namespace ConsoleGUI
 			}
 		}
 
-		public static void Setup()
+		public void Setup()
 		{
 			Resize(WindowSize);
 		}
 
-		public static void Resize(in Size size)
+		public void Resize(in Size size)
 		{
 			Console.Size = size;
 			_buffer.Initialize(size);
@@ -169,19 +177,19 @@ namespace ConsoleGUI
 			Initialize();
 		}
 
-		public static void AdjustBufferSize()
+		public void AdjustBufferSize()
 		{
 			if (WindowSize != BufferSize)
 				Resize(WindowSize);
 		}
 
-		public static void AdjustWindowSize()
+		public void AdjustWindowSize()
 		{
 			if (WindowSize != BufferSize)
 				Resize(BufferSize);
 		}
 
-		public static void ReadInput(IReadOnlyCollection<IInputListener> controls)
+		public void ReadInput(IReadOnlyCollection<IInputListener> controls)
 		{
 			while (Console.KeyAvailable)
 			{
@@ -196,12 +204,12 @@ namespace ConsoleGUI
 			}
 		}
 
-		private static void BindContent()
+		private void BindContent()
 		{
-			ContentContext = new DrawingContext(new ConsoleManagerDrawingContextListener(), Content);
+			ContentContext = new DrawingContext(new ConsoleManagerDrawingContextListener(this), Content);
 		}
 
-		private static void UpdateMouseContext()
+		private void UpdateMouseContext()
 		{
 			MouseContext = MousePosition.HasValue
 				? _buffer.GetMouseContext(MousePosition.Value)

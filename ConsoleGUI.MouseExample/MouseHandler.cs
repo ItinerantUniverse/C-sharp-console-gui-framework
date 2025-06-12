@@ -10,11 +10,13 @@ namespace ConsoleGUI.MouseExample
 {
 	public static class MouseHandler
 	{
+		private static ConsoleManager _consoleManager;
 		private static IntPtr _inputHandle = IntPtr.Zero;
 		private static InputRecord[] _inputBuffer;
 
-		public static void Initialize()
+		public static void Initialize(ConsoleManager consoleManager)
 		{
+			_consoleManager = consoleManager;
 			_inputHandle = GetStdHandle(unchecked((uint)-10));
 			_inputBuffer = new InputRecord[100];
 		}
@@ -39,8 +41,8 @@ namespace ConsoleGUI.MouseExample
 
 		private static void ProcessMouseEvent(in MouseRecord mouseEvent)
 		{
-			ConsoleManager.MousePosition = new Position(mouseEvent.MousePosition.X, mouseEvent.MousePosition.Y);
-			ConsoleManager.MouseDown = (mouseEvent.ButtonState & 0x0001) != 0;
+			_consoleManager.MousePosition = new Position(mouseEvent.MousePosition.X, mouseEvent.MousePosition.Y);
+			_consoleManager.MouseDown = (mouseEvent.ButtonState & 0x0001) != 0;
 		}
 
 		private struct COORD

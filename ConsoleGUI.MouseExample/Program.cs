@@ -70,20 +70,21 @@ namespace ConsoleGUI.MouseExample
 
 	class Program
 	{
+		private static ConsoleManager _consoleManager = new ConsoleManager();
 		static void Main()
 		{
-			MouseHandler.Initialize();
+			MouseHandler.Initialize(_consoleManager);
 
-			ConsoleManager.Setup();
-			ConsoleManager.Console = new SimplifiedConsole();
-			ConsoleManager.Resize(new Size(80, 30));
+			_consoleManager.Setup();
+			_consoleManager.Console = new SimplifiedConsole();
+			_consoleManager.Resize(new Size(80, 30));
 
 			var textBox1 = new TextBox { Text = "Hello world" };
 			var textBox2 = new TextBox { Text = "Test" };
 			var textBlock = new TextBlock();
 			var button = new Button { Content = new Margin { Offset = new Offset(4, 1, 4, 1), Content = new TextBlock { Text = "Button" } } };
 
-			ConsoleManager.Content = new Background
+			_consoleManager.Content = new Background
 			{
 				Color = new Color(100, 0, 0),
 				Content = new Margin
@@ -141,12 +142,12 @@ namespace ConsoleGUI.MouseExample
 
 			while (true)
 			{
-				ConsoleManager.AdjustBufferSize();
-				ConsoleManager.ReadInput(input);
+				_consoleManager.AdjustBufferSize();
+				_consoleManager.ReadInput(input);
 
 				MouseHandler.ReadMouseEvents();
 
-				textBlock.Text = $"Mouse position: ({ConsoleManager.MousePosition?.X}, {ConsoleManager.MousePosition?.Y})";
+				textBlock.Text = $"Mouse position: ({_consoleManager.MousePosition?.X}, {_consoleManager.MousePosition?.Y})";
 
 				Thread.Sleep(50);
 			}
